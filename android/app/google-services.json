@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "743290619948",
+    "project_id": "milan-af-8-rwa2",
+    "storage_bucket": "milan-af-8-rwa2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:743290619948:android:4d33029c3af7e154032989",
+        "android_client_info": {
+          "package_name": "com.mk99.chat_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "743290619948-76jsenmbd3k6ptq6chl2klfn11ds43s1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mk99.chat_app",
+            "certificate_hash": "94bd81e1d9d4c624623b9fc539551bf547f1ee3b"
+          }
+        },
+        {
+          "client_id": "743290619948-irjmknm5v4mc3lreengkvsl8s1kias79.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNRKEcKpm7kBksI4d5JnsHKSiVmQZMrLQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "743290619948-irjmknm5v4mc3lreengkvsl8s1kias79.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "743290619948-or3fbnmsak6vk0k6skquutm1aslff1q5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mk99.chatApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
