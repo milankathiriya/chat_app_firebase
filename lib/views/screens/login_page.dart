@@ -42,7 +42,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   );
                   // push a user to home_page
-                  Navigator.of(context).pushReplacementNamed('/');
+                  Navigator.of(context)
+                      .pushReplacementNamed('/', arguments: res["user"]);
                 } else if (res["error"] != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -90,7 +91,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   );
                   // push a user to home_page
-                  Navigator.of(context).pushReplacementNamed('/');
+                  Navigator.of(context)
+                      .pushReplacementNamed('/', arguments: res["user"]);
                 } else if (res["error"] != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -294,7 +296,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   );
                   // push a user to home_page
-                  Navigator.of(context).pushReplacementNamed('/');
+                  Navigator.of(context)
+                      .pushReplacementNamed('/', arguments: res["user"]);
                 } else if (res["error"] != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

@@ -80,6 +80,9 @@ class AuthHelper {
         case "wrong-password":
           response["error"] = "Your password is wrong...";
           break;
+        case "operation-not-allowed":
+          response["error"] = "This authentication method is disabled...";
+          break;
       }
     }
 
