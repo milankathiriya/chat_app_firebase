@@ -22,12 +22,6 @@ class _HomePageState extends State<HomePage> {
       ),
       drawer: MyDrawer(user: user),
       body: Container(),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () async {
-          await FirestoreHelper.firestoreHelper.insertUser();
-        },
-      ),
     );
   }
 }

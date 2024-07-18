@@ -1,3 +1,6 @@
+import 'package:chat_app/models/user_model.dart';
+import 'package:chat_app/utils/helpers/firestore_helper.dart';
+
 import '../../utils/helpers/auth_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +13,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
   final GlobalKey<FormState> signUpFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> signInFormKey = GlobalKey<FormState>();
 
@@ -22,6 +27,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       body: Container(
         alignment: Alignment.center,
         child: Column(
@@ -90,6 +96,20 @@ class _LoginPageState extends State<LoginPage> {
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
+
+                  User user = res["user"];
+
+                  UserModel userModel = UserModel(
+                    email: user.email!,
+                    auth_uid: user.uid,
+                    created_at: DateTime.now(),
+                    logged_in_at: DateTime.now(),
+                  );
+
+                  // call the insertUser()
+                  await FirestoreHelper.firestoreHelper
+                      .insertUser(userModel: userModel);
+
                   // push a user to home_page
                   Navigator.of(context)
                       .pushReplacementNamed('/', arguments: res["user"]);
@@ -189,6 +209,17 @@ class _LoginPageState extends State<LoginPage> {
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
+
+                  User user = res["user"];
+
+                  UserModel userModel = UserModel(
+                      email: user.email!,
+                      auth_uid: user.uid,
+                      created_at: DateTime.now());
+
+                  // call the insertUser()
+                  await FirestoreHelper.firestoreHelper
+                      .insertUser(userModel: userModel);
                 } else if (res["error"] != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -224,7 +255,7 @@ class _LoginPageState extends State<LoginPage> {
 
   validateAndSignIn() {
     showDialog(
-      context: context,
+      context: scaffoldKey.currentContext!,
       builder: (context) => AlertDialog(
         title: Text("Sign In"),
         content: Form(
@@ -285,7 +316,7 @@ class _LoginPageState extends State<LoginPage> {
                 Map<String, dynamic> res = await AuthHelper.authHelper
                     .signIn(email: email!, password: password!);
 
-                Navigator.pop(context);
+                // Navigator.pop(context);
 
                 if (res["user"] != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -295,9 +326,22 @@ class _LoginPageState extends State<LoginPage> {
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
+
+                  User user = res["user"];
+
+                  UserModel userModel = UserModel(
+                    email: user.email!,
+                    auth_uid: user.uid,
+                    created_at: DateTime.now(),
+                  );
+
+                  // call the insertUser()
+                  await FirestoreHelper.firestoreHelper
+                      .insertUser(userModel: userModel);
+
                   // push a user to home_page
-                  Navigator.of(context)
-                      .pushReplacementNamed('/', arguments: res["user"]);
+                  Navigator.pushReplacementNamed(context, '/',
+                      arguments: res["user"]);
                 } else if (res["error"] != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
