@@ -1,3 +1,4 @@
+import 'package:chat_app/views/screens/chat_page.dart';
 import 'package:chat_app/views/screens/home_page.dart';
 
 import 'views/screens/login_page.dart';
@@ -23,6 +24,7 @@ void main() async {
       routes: {
         'login_page': (context) => LoginPage(),
         '/': (context) => HomePage(),
+        'chat_page': (context) => ChatPage(),
       },
     ),
   );

@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:chat_app/models/user_model.dart';
+import 'package:chat_app/utils/helpers/auth_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreHelper {
@@ -75,5 +76,39 @@ class FirestoreHelper {
         },
       );
     }
+  }
+
+  // fetch all users
+  Stream<QuerySnapshot<Map<String, dynamic>>> fetchAllUsers() {
+    return db.collection("users").snapshots();
+  }
+
+  // create the chatroom
+  Future<void> createChatroom({required String receiver_id}) async {
+    await db.collection("chatrooms").doc(receiver_id).set({
+      "users": [receiver_id, AuthHelper.firebaseAuth.currentUser!.uid]
+    });
+  }
+
+  // create a chat subcollection and add message into it
+  Future<void> sendMessage(
+      {required String receiver_id, required String msg}) async {
+    await db.collection("chatrooms").doc(receiver_id).collection("chat").add({
+      "msg": msg,
+      "sent_by": AuthHelper.firebaseAuth.currentUser!.uid,
+      "received_by": receiver_id,
+      "timestamp": DateTime.now(),
+    });
+  }
+
+  // fetch all messages from a chat subcollection
+  Stream<QuerySnapshot<Map<String, dynamic>>> fetchMessages(
+      {required String receiver_id}) {
+    return db
+        .collection("chatrooms")
+        .doc(receiver_id)
+        .collection("chat")
+        .orderBy("timestamp", descending: true)
+        .snapshots();
   }
 }
