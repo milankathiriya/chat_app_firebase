@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:chat_app/utils/helpers/firestore_helper.dart';
 import 'package:chat_app/views/components/my_drawer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -29,28 +31,43 @@ class _ChatPageState extends State<ChatPage> {
           children: [
             Expanded(
               flex: 16,
-              child: StreamBuilder(
-                stream: FirestoreHelper.firestoreHelper
+              child: FutureBuilder(
+                future: FirestoreHelper.firestoreHelper
                     .fetchMessages(receiver_id: receiver_id),
                 builder: (context, snapshot) {
-                  if (snapshot.hasError) {
+                  log("-------------");
+                  log("Connection state: ${snapshot.connectionState}");
+                  log("Has data: ${snapshot.hasData}");
+                  log("Error: ${snapshot.error}");
+                  log("Data: ${snapshot.data}");
+                  log("-------------");
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (snapshot.hasError) {
                     return Center(
                       child: Text("ERROR: ${snapshot.error}"),
                     );
-                  } else if (snapshot.hasData) {
-                    QuerySnapshot<Map<String, dynamic>>? data = snapshot.data;
+                  } else {
+                    // Data is available
+                    return StreamBuilder(
+                      stream: snapshot.data,
+                      builder: (context, ss) {
+                        if (ss.hasError) {
+                          return Center(
+                            child: Text("ERROR: ${ss.error}"),
+                          );
+                        } else if (ss.hasData) {
+                          List<QueryDocumentSnapshot<Map<String, dynamic>>>
+                              allDocs = (ss.data == null) ? [] : ss.data!.docs;
 
-                    List<QueryDocumentSnapshot<Map<String, dynamic>>> allDocs =
-                        (data != null) ? data.docs : [];
-
-                    return (allDocs.isEmpty)
-                        ? Center(
-                            child: Text("No chat has been made yet..."),
-                          )
-                        : ListView.builder(
+                          return ListView.builder(
                             reverse: true,
                             itemCount: allDocs.length,
                             itemBuilder: (context, i) {
+                              // Adjust this part according to your document structure
                               return Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
@@ -70,11 +87,13 @@ class _ChatPageState extends State<ChatPage> {
                               );
                             },
                           );
+                        }
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      },
+                    );
                   }
-
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
                 },
               ),
             ),

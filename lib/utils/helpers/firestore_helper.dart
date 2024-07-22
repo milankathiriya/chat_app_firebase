@@ -102,13 +102,30 @@ class FirestoreHelper {
   }
 
   // fetch all messages from a chat subcollection
-  Stream<QuerySnapshot<Map<String, dynamic>>> fetchMessages(
-      {required String receiver_id}) {
-    return db
-        .collection("chatrooms")
-        .doc(receiver_id)
-        .collection("chat")
-        .orderBy("timestamp", descending: true)
-        .snapshots();
+  Future<Stream<QuerySnapshot<Map<String, dynamic>>>> fetchMessages(
+      {required String receiver_id}) async {
+    QuerySnapshot<Map<String, dynamic>> querySnapshots =
+        await db.collection("chatrooms").get();
+
+    List<dynamic> users = [];
+
+    querySnapshots.docs.forEach((DocumentSnapshot<Map<String, dynamic>> doc) {
+      users = doc.data()?["users"] ?? []; // Use null check operator for safety
+    });
+
+    if (users.contains(receiver_id) ||
+        users.contains(AuthHelper.firebaseAuth.currentUser!.uid)) {
+      // TODO: fetch data from receiver_id or currentUser.uid
+      return db
+          .collection("chatrooms")
+          .doc(receiver_id)
+          // .doc(AuthHelper.firebaseAuth.currentUser!.uid)
+          .collection("chat")
+          .orderBy("timestamp", descending: true)
+          .snapshots();
+    } else {
+      // Return an empty stream or handle the case where the conditions are not met
+      return Stream.empty();
+    }
   }
 }
