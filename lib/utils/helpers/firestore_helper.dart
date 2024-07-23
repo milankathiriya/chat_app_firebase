@@ -93,7 +93,22 @@ class FirestoreHelper {
   // create a chat subcollection and add message into it
   Future<void> sendMessage(
       {required String receiver_id, required String msg}) async {
-    await db.collection("chatrooms").doc(receiver_id).collection("chat").add({
+    QuerySnapshot<Map<String, dynamic>> querySnapshots =
+        await db.collection("chatrooms").get();
+
+    List<dynamic> users = [];
+    String docId = receiver_id;
+
+    querySnapshots.docs.forEach((DocumentSnapshot<Map<String, dynamic>> doc) {
+      users = doc.data()?["users"] ?? []; // Use null check operator for safety
+      if (users.contains(receiver_id) &&
+          users.contains(AuthHelper.firebaseAuth.currentUser!.uid)) {
+        // get doc id
+        docId = doc.id;
+      }
+    });
+
+    await db.collection("chatrooms").doc(docId).collection("chat").add({
       "msg": msg,
       "sent_by": AuthHelper.firebaseAuth.currentUser!.uid,
       "received_by": receiver_id,
@@ -108,24 +123,22 @@ class FirestoreHelper {
         await db.collection("chatrooms").get();
 
     List<dynamic> users = [];
+    String docId = "";
 
     querySnapshots.docs.forEach((DocumentSnapshot<Map<String, dynamic>> doc) {
       users = doc.data()?["users"] ?? []; // Use null check operator for safety
+      if (users.contains(receiver_id) &&
+          users.contains(AuthHelper.firebaseAuth.currentUser!.uid)) {
+        // get doc id
+        docId = doc.id;
+      }
     });
 
-    if (users.contains(receiver_id) ||
-        users.contains(AuthHelper.firebaseAuth.currentUser!.uid)) {
-      // TODO: fetch data from receiver_id or currentUser.uid
-      return db
-          .collection("chatrooms")
-          .doc(receiver_id)
-          // .doc(AuthHelper.firebaseAuth.currentUser!.uid)
-          .collection("chat")
-          .orderBy("timestamp", descending: true)
-          .snapshots();
-    } else {
-      // Return an empty stream or handle the case where the conditions are not met
-      return Stream.empty();
-    }
+    return db
+        .collection("chatrooms")
+        .doc(docId)
+        .collection("chat")
+        .orderBy("timestamp", descending: true)
+        .snapshots();
   }
 }

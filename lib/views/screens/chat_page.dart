@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:chat_app/utils/helpers/auth_helper.dart';
 import 'package:chat_app/utils/helpers/firestore_helper.dart';
 import 'package:chat_app/views/components/my_drawer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -35,13 +36,6 @@ class _ChatPageState extends State<ChatPage> {
                 future: FirestoreHelper.firestoreHelper
                     .fetchMessages(receiver_id: receiver_id),
                 builder: (context, snapshot) {
-                  log("-------------");
-                  log("Connection state: ${snapshot.connectionState}");
-                  log("Has data: ${snapshot.hasData}");
-                  log("Error: ${snapshot.error}");
-                  log("Data: ${snapshot.data}");
-                  log("-------------");
-
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
                       child: CircularProgressIndicator(),
@@ -69,7 +63,12 @@ class _ChatPageState extends State<ChatPage> {
                             itemBuilder: (context, i) {
                               // Adjust this part according to your document structure
                               return Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
+                                mainAxisAlignment:
+                                    (allDocs[i].data()["sent_by"] ==
+                                            AuthHelper
+                                                .firebaseAuth.currentUser!.uid)
+                                        ? MainAxisAlignment.end
+                                        : MainAxisAlignment.start,
                                 children: [
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
