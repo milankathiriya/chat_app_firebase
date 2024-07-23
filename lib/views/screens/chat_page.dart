@@ -5,7 +5,9 @@ import 'package:chat_app/utils/helpers/firestore_helper.dart';
 import 'package:chat_app/views/components/my_drawer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -73,13 +75,59 @@ class _ChatPageState extends State<ChatPage> {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
-                                      ActionChip(
-                                        label:
-                                            Text("${allDocs[i].data()["msg"]}"),
-                                        onPressed: () {},
+                                      // TODO: use other Material widget instead of Cupertino widget
+                                      CupertinoContextMenu(
+                                        actions: [
+                                          CupertinoContextMenuAction(
+                                            child: Text("Update"),
+                                            onPressed: () async {
+                                              // TODO: call the update chat logic
+                                              await FirestoreHelper
+                                                  .firestoreHelper
+                                                  .updateMessage(
+                                                receiver_id: receiver_id,
+                                                msgDocId: allDocs[i].id,
+                                                newMessage: "updated msg",
+                                              );
+                                            },
+                                          ),
+                                          CupertinoContextMenuAction(
+                                            child: Text("Delete"),
+                                            isDestructiveAction: true,
+                                            onPressed: () async {
+                                              // call the delete chat logic
+                                              await FirestoreHelper
+                                                  .firestoreHelper
+                                                  .deleteMessage(
+                                                      receiver_id: receiver_id,
+                                                      msgDocId: allDocs[i].id);
+
+                                              try {
+                                                Navigator.pop(context);
+                                              } catch (e) {
+                                                log("$e");
+                                              }
+                                            },
+                                          ),
+                                        ],
+                                        child: Material(
+                                          child: Container(
+                                            padding: const EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.black),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: Text(
+                                                "${allDocs[i].data()["msg"]}"),
+                                          ),
+                                        ),
                                       ),
+                                      const SizedBox(height: 6),
                                       Text(
                                           "${(allDocs[i].data()["timestamp"] as Timestamp).toDate()}"),
+                                      const SizedBox(height: 10),
                                     ],
                                   ),
                                 ],

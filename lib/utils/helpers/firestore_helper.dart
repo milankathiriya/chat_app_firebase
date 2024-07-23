@@ -67,9 +67,6 @@ class FirestoreHelper {
 
     // update logged_in_at field
     if (isUserExists == true) {
-      log("========");
-      log("$isUserExists");
-      log("========");
       await db.collection("users").doc("$existingUserId").update(
         {
           "logged_in_at": DateTime.now(),
@@ -140,5 +137,61 @@ class FirestoreHelper {
         .collection("chat")
         .orderBy("timestamp", descending: true)
         .snapshots();
+  }
+
+  Future<void> deleteMessage(
+      {required String receiver_id, required String msgDocId}) async {
+    QuerySnapshot<Map<String, dynamic>> querySnapshots =
+        await db.collection("chatrooms").get();
+
+    List<dynamic> users = [];
+    String docId = receiver_id;
+
+    querySnapshots.docs.forEach((DocumentSnapshot<Map<String, dynamic>> doc) {
+      users = doc.data()?["users"] ?? []; // Use null check operator for safety
+      if (users.contains(receiver_id) &&
+          users.contains(AuthHelper.firebaseAuth.currentUser!.uid)) {
+        // get doc id
+        docId = doc.id;
+      }
+    });
+
+    await db
+        .collection("chatrooms")
+        .doc(docId)
+        .collection("chat")
+        .doc(msgDocId)
+        .delete();
+  }
+
+  Future<void> updateMessage(
+      {required String receiver_id,
+      required String msgDocId,
+      required String newMessage}) async {
+    QuerySnapshot<Map<String, dynamic>> querySnapshots =
+        await db.collection("chatrooms").get();
+
+    List<dynamic> users = [];
+    String docId = receiver_id;
+
+    querySnapshots.docs.forEach((DocumentSnapshot<Map<String, dynamic>> doc) {
+      users = doc.data()?["users"] ?? []; // Use null check operator for safety
+      if (users.contains(receiver_id) &&
+          users.contains(AuthHelper.firebaseAuth.currentUser!.uid)) {
+        // get doc id
+        docId = doc.id;
+      }
+    });
+
+    await db
+        .collection("chatrooms")
+        .doc(docId)
+        .collection("chat")
+        .doc(msgDocId)
+        .update({
+      "msg": newMessage,
+      "sent_by": AuthHelper.firebaseAuth.currentUser!.uid,
+      "received_by": receiver_id,
+    });
   }
 }
