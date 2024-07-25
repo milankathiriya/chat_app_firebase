@@ -1,5 +1,13 @@
+import 'dart:developer';
+
 import 'package:chat_app/models/user_model.dart';
+import 'package:chat_app/utils/helpers/fcm_helper.dart';
 import 'package:chat_app/utils/helpers/firestore_helper.dart';
+import 'package:chat_app/utils/helpers/local_notification_helper.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../utils/helpers/auth_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,6 +31,52 @@ class _LoginPageState extends State<LoginPage> {
 
   String? email;
   String? password;
+
+  Future<void> requestPermission() async {
+    await AndroidFlutterLocalNotificationsPlugin()
+        .requestNotificationsPermission();
+    await Permission.notification.request();
+    await Permission.accessNotificationPolicy.request();
+  }
+
+  Future<void> fetchFCMToken() async {
+    String? token = await FCMHelper.fcmHelper.getFCMToken();
+
+    log("==================");
+    print("$token");
+    log("==================");
+  }
+
+  Future handleFCMNotificationsInteraction() async {
+    // This code only executes if our app state is terminated
+    RemoteMessage? remoteMessage =
+        await FCMHelper.firebaseMessaging.getInitialMessage();
+
+    if (remoteMessage != null) {
+      print("==============");
+      print("${remoteMessage.notification!.title}");
+      print("${remoteMessage.notification!.body}");
+      print("${remoteMessage.data['']}");
+      print("==============");
+    }
+
+    // This code only executes if our app state is background
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage remoteMessage) {
+      print("==============");
+      print("${remoteMessage.notification!.title}");
+      print("${remoteMessage.notification!.body}");
+      print("${remoteMessage.data['']}");
+      print("==============");
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    requestPermission();
+    fetchFCMToken();
+    handleFCMNotificationsInteraction();
+  }
 
   @override
   Widget build(BuildContext context) {
